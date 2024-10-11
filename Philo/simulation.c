@@ -136,7 +136,7 @@ void eat(t_philo *philo)
     print_status(philo, "has taken a fork");
   
     pthread_mutex_lock(philo->meal_lock);
-    printf("meal locked\n");
+    // printf("meal locked\n");
     philo->eating = 1;
 
     pthread_mutex_unlock(philo->meal_lock);
