@@ -107,13 +107,11 @@ void *philosopher_life(void *arg)
     t_philo *philo = (t_philo *)arg;
 
     if(philo->id % 2 != 0)
-        smart_sleep(50);
-    while (!*(philo->dead))
+        smart_sleep(1);
+    while (!monitor(philo))
     {
-        print_status(philo, "is thinking");
         eat(philo);
-        if (monitor(philo))
-            break;
+        print_status(philo, "is thinking");
         sleepp(philo);
     }
     // printf("Philosopher %d has eaten %d times\n", philo->id, philo->meals_eaten);
@@ -122,7 +120,6 @@ void *philosopher_life(void *arg)
 
 void eat(t_philo *philo)
 {
-    // philo->last_meal = get_time();
     if (pthread_mutex_lock(philo->r_fork) != 0)
     {
         return;
@@ -136,15 +133,18 @@ void eat(t_philo *philo)
     print_status(philo, "has taken a fork");
   
     pthread_mutex_lock(philo->meal_lock);
-    // printf("meal locked\n");
     philo->eating = 1;
-
     pthread_mutex_unlock(philo->meal_lock);
+
     print_status(philo, "is eating");
     smart_sleep(philo->time_to_eat);
     philo->last_meal = get_time();
     philo->meals_eaten++;
+
+    pthread_mutex_lock(philo->meal_lock);
     philo->eating = 0;
+    pthread_mutex_unlock(philo->meal_lock);
+    
     pthread_mutex_unlock(philo->l_fork);
     pthread_mutex_unlock(philo->r_fork);
 }
@@ -161,28 +161,19 @@ void print_status(t_philo *philo, char *status)
 	
 	pthread_mutex_lock(philo->write_lock);
 	current_time = get_time() - philo->start_time;
-    if(*(philo->dead) == 0)
-    {
-	if (!philo->eating)
+    if(!monitor(philo))
 		printf("%lld %d %s\n", current_time, philo->id, status);
-	else
-		printf("%lld %d %s\n", current_time, philo->id, "is eating");
 	pthread_mutex_unlock(philo->write_lock);
-    }
 }
 
 void smart_sleep(long long time)
 {
     long long start;
-    long long now;
 
     start = get_time();
-    while (1)
+    while (get_time() - start < time)
     {
-        now = get_time();
-        if ((now - start) >= time)
-            break;
-        usleep(500);
+        usleep(100);
     }
 }
 
@@ -192,7 +183,7 @@ int monitor(t_philo *philo)
     pthread_mutex_lock(philo->meal_lock);
     current_time = get_time();
 
-    if (((philo->last_meal != 0) && (current_time - philo->last_meal) > philo->time_to_die))
+    if ((current_time - philo->last_meal) > philo->time_to_die)
     {
         pthread_mutex_lock(philo->write_lock);
         printf("%lld %d died\n", (current_time - philo->start_time), philo->id);
@@ -205,7 +196,6 @@ int monitor(t_philo *philo)
     pthread_mutex_unlock(philo->meal_lock);
     return 0;
 }
-
 
 void *monitor_routine(void *arg)
 {

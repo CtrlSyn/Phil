@@ -6,7 +6,7 @@
 /*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 14:31:25 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/11 10:18:35 by ansoulai         ###   ########.fr       */
+/*   Updated: 2024/10/11 11:10:09 by ansoulai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 # include <unistd.h>
 # include <stdio.h>
-# include <malloc.h>
 # include <pthread.h>
 # include <sys/time.h>
 # include <stdlib.h>
@@ -66,7 +65,8 @@ void print_struct(t_program *program);
 void input_error(void);
 int initialize_philos(t_program *program);
 void initialize_mutex(t_program *program);
-int get_time(void);
+// int get_time(void);
+long long get_time(void);
 
 // Simulation functions :
 int initialize_philos(t_program *program);

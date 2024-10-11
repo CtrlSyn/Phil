@@ -20,9 +20,9 @@ void input_into_struct(t_program *program, char **av)
 	program->mutex_arr = malloc(sizeof(pthread_mutex_t) * program->philos->num_of_philos);
 }
 
-int get_time(void)
+long long get_time(void)
 {
-	struct timeval time;
-	gettimeofday(&time, NULL);
-	return (time.tv_sec * 1000 + time.tv_usec / 1000);
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    return ((long long)time.tv_sec * 1000 + time.tv_usec / 1000);
 }
