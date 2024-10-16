@@ -1,10 +1,10 @@
 NAME = philo
 
-SRC_NAME = parsing.c main.c fetching.c simulation.c 
+SRC_NAME = parsing.c main.c fetching.c simulation.c simulation_p2.c observation.c
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror -g3 #fsanitize=address
+CFLAGS = -Wall -Wextra -Werror #-fsanitize=address
 
 OBJ_NAME = $(SRC_NAME:.c=.o)
 

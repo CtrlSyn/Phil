@@ -6,7 +6,7 @@
 /*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/19 14:31:25 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/11 11:10:09 by ansoulai         ###   ########.fr       */
+/*   Updated: 2024/10/16 19:46:40 by ansoulai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ typedef struct s_philo
 {
 	pthread_t		thread;
 	int				id;
-	int				eating;
+	int				full;
 	int				meals_eaten;
 	size_t			last_meal;
 	size_t			time_to_die;
@@ -37,15 +37,13 @@ typedef struct s_philo
 	pthread_mutex_t	*r_fork;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*write_lock;
-	pthread_mutex_t	*dead_lock;
 	pthread_mutex_t	*meal_lock;
-	// t_program		*program;
 }					t_philo;
 
 typedef struct s_program
 {
+	int				all_eat;
 	int				dead_flag;
-	pthread_mutex_t	dead_lock;
 	pthread_mutex_t	meal_lock;
 	pthread_mutex_t	write_lock;
 	t_philo			*philos;
@@ -54,7 +52,6 @@ typedef struct s_program
 }					t_program;
 
 // Parsing functions : 
-
 int ft_strlen(char *str);
 int is_valid_str(char *str);
 int ft_atoi(char *str);
@@ -65,19 +62,22 @@ void print_struct(t_program *program);
 void input_error(void);
 int initialize_philos(t_program *program);
 void initialize_mutex(t_program *program);
-// int get_time(void);
 long long get_time(void);
 
 // Simulation functions :
 int initialize_philos(t_program *program);
 void *philosopher_life(void *arg);
-void *philosophers(void *arg);
+void *philosophers(t_program *program);
 void eat(t_philo *philo);
 void sleepp(t_philo *philo);
 void print_status(t_philo *philo, char *status);
 void smart_sleep(long long time);
 int monitor(t_philo *philo);
 void *monitor_routine(void *arg);
+int initialize_philos_part2(t_program *program, int i);
+
+// cleanup
+void cleanup_resources(t_program *program);
 
 
 #endif

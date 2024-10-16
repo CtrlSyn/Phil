@@ -1,230 +1,119 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   simulation.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/16 19:46:01 by ansoulai          #+#    #+#             */
+/*   Updated: 2024/10/16 19:46:06 by ansoulai         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-int initialize_philos(t_program *program)
+int	initialize_philos(t_program *program)
 {
-    int i = 0;
+	int	i;
 
-    if (!program || !program->philos || program->philos->num_of_philos <= 0)
-    {
-        fprintf(stderr, "Invalid program structure\n");
-        return 0;
-    }
-
-    while (i < program->philos->num_of_philos)
-    {
-        program->philos[i].id = i + 1;
-        program->philos[i].eating = 0;
-        program->philos[i].meals_eaten = 0;
-        program->philos[i].start_time = get_time();
-        program->philos[i].last_meal = get_time();
-        program->philos[i].time_to_die = program->philos->time_to_die;
-        program->philos[i].time_to_eat = program->philos->time_to_eat;
-        program->philos[i].time_to_sleep = program->philos->time_to_sleep;
-        program->philos[i].dead = &program->dead_flag;
-        program->philos[i].write_lock = &program->write_lock;
-        if (program->philos[i].id % 2 != 0)
-        {
-            program->philos[i].r_fork = &program->mutex_arr[i];
-            program->philos[i].l_fork = &program->mutex_arr[(i - 1 + program->philos->num_of_philos) % program->philos->num_of_philos];
-        }
-        else
-        {
-            program->philos[i].r_fork = &program->mutex_arr[(i + 1) % program->philos->num_of_philos];
-            program->philos[i].l_fork = &program->mutex_arr[i];
-        }
-        program->philos[i].dead_lock = &program->dead_lock;
-        program->philos[i].num_times_to_eat = program->philos->num_times_to_eat;
-        // program->philos[i].program = program;
-
-        program->philos[i].meal_lock = &program->meal_lock;
-
-        if (!program->philos[i].r_fork || !program->philos[i].l_fork)
-        {
-            fprintf(stderr, "Failed to allocate memory for mutexes\n");
-            while (--i >= 0)
-            {
-                free(program->philos[i].r_fork);
-                free(program->philos[i].l_fork);
-            }
-            return 0;
-        }
-        i++;
-    }
-    return 1;
+	i = 0;
+	if (!program || !program->philos || program->philos->num_of_philos <= 0)
+	{
+		printf("Invalid program structure\n");
+		return (0);
+	}
+	while (i < program->philos->num_of_philos)
+	{
+		program->philos[i].id = i + 1;
+		program->philos[i].meals_eaten = 0;
+		program->philos[i].start_time = get_time();
+		program->philos[i].last_meal = program->philos[i].start_time;
+		program->philos[i].time_to_die = program->philos->time_to_die;
+		program->philos[i].time_to_eat = program->philos->time_to_eat;
+		program->philos[i].time_to_sleep = program->philos->time_to_sleep;
+		program->philos[i].dead = &program->dead_flag;
+		program->philos[i].write_lock = &program->write_lock;
+		program->philos[i].full = program->all_eat;
+		if (initialize_philos_part2(program, i) == 0)
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
-void initialize_mutex(t_program *program)
+int	initialize_philos_part2(t_program *program, int i)
 {
-    pthread_mutex_init(&(program->dead_lock), NULL);
-    pthread_mutex_init(&program->meal_lock, NULL);
-    pthread_mutex_init(&program->write_lock, NULL);
-    int i = 0;
-    while(i < program->philos->num_of_philos)
-    {
-        pthread_mutex_init(&(program->mutex_arr[i]), NULL);
-        i++;
-    }
+	if (program->philos[i].id % 2 != 0)
+	{
+		program->philos[i].r_fork = &program->mutex_arr[i];
+		program->philos[i].l_fork = &program->mutex_arr[(i + 1)
+			% program->philos->num_of_philos];
+	}
+	else
+	{
+		program->philos[i].r_fork = &program->mutex_arr[(i + 1)
+			% program->philos->num_of_philos];
+		program->philos[i].l_fork = &program->mutex_arr[i];
+	}
+	program->philos[i].num_times_to_eat = program->philos->num_times_to_eat;
+	program->philos[i].meal_lock = &program->meal_lock;
+	return (1);
 }
 
-void *philosophers(void *arg)
+void	initialize_mutex(t_program *program)
 {
-    t_program *program = (t_program *)arg;
-    int i = 0;
+	int	i;
 
-    if (!program || !program->philos)
-    {
-        fprintf(stderr, "Invalid program structure\n");
-        return NULL;
-    }
-
-    while (i < program->philos->num_of_philos)
-    {
-        if (pthread_create(&program->philos[i].thread, NULL, philosopher_life, &program->philos[i]) != 0)
-        {
-            fprintf(stderr, "Failed to create thread for philosopher %d\n", i + 1);
-            return NULL;
-        }
-        i++;
-    }
-    if(pthread_create(&program->monitor_thread, NULL, monitor_routine, program) != 0)
-    {
-        fprintf(stderr, "Failed to create monitor thread\n");
-        program->dead_flag = 1;
-        return NULL;
-    }
-    pthread_join(program->monitor_thread, NULL);
-    i = 0;
-    while (i < program->philos->num_of_philos)
-    {
-        pthread_join(program->philos[i].thread, NULL);
-        i++;
-    }
-    return NULL;
+	pthread_mutex_init(&program->meal_lock, NULL);
+	pthread_mutex_init(&program->write_lock, NULL);
+	i = 0;
+	while (i < program->philos->num_of_philos)
+	{
+		pthread_mutex_init(&(program->mutex_arr[i]), NULL);
+		i++;
+	}
 }
 
-void *philosopher_life(void *arg)
+void	*philosophers(t_program *program)
 {
-    t_philo *philo = (t_philo *)arg;
+	int	i;
 
-    if(philo->id % 2 != 0)
-        smart_sleep(1);
-    while (!monitor(philo))
-    {
-        eat(philo);
-        print_status(philo, "is thinking");
-        sleepp(philo);
-    }
-    // printf("Philosopher %d has eaten %d times\n", philo->id, philo->meals_eaten);
-    return NULL;
+	i = 0;
+	if (!program || !program->philos)
+		return (NULL);
+	while (i < program->philos->num_of_philos)
+	{
+		if (pthread_create(&program->philos[i].thread, NULL, philosopher_life,
+				&program->philos[i]) != 0)
+			return (NULL);
+		i++;
+	}
+	if (pthread_create(&program->monitor_thread, NULL, monitor_routine,
+			program) != 0)
+		return (NULL);
+	pthread_join(program->monitor_thread, NULL);
+	i = 0;
+	while (i < program->philos->num_of_philos)
+	{
+		pthread_join(program->philos[i].thread, NULL);
+		i++;
+	}
+	return (NULL);
 }
 
-void eat(t_philo *philo)
+void	*philosopher_life(void *arg)
 {
-    if (pthread_mutex_lock(philo->r_fork) != 0)
-    {
-        return;
-    }
-    print_status(philo, "has taken a fork");
-    if (pthread_mutex_lock(philo->l_fork) != 0)
-    {
-        pthread_mutex_unlock(philo->r_fork);
-        return;
-    }
-    print_status(philo, "has taken a fork");
-  
-    pthread_mutex_lock(philo->meal_lock);
-    philo->eating = 1;
-    pthread_mutex_unlock(philo->meal_lock);
-
-    print_status(philo, "is eating");
-    smart_sleep(philo->time_to_eat);
-    philo->last_meal = get_time();
-    philo->meals_eaten++;
-
-    pthread_mutex_lock(philo->meal_lock);
-    philo->eating = 0;
-    pthread_mutex_unlock(philo->meal_lock);
-    
-    pthread_mutex_unlock(philo->l_fork);
-    pthread_mutex_unlock(philo->r_fork);
-}
-
-void sleepp(t_philo *philo)
-{
-    print_status(philo, "is sleeping");
-    smart_sleep(philo->time_to_sleep);
-}
-
-void print_status(t_philo *philo, char *status)
-{
-	long long current_time;
-	
-	pthread_mutex_lock(philo->write_lock);
-	current_time = get_time() - philo->start_time;
-    if(!monitor(philo))
-		printf("%lld %d %s\n", current_time, philo->id, status);
-	pthread_mutex_unlock(philo->write_lock);
-}
-
-void smart_sleep(long long time)
-{
-    long long start;
-
-    start = get_time();
-    while (get_time() - start < time)
-    {
-        usleep(100);
-    }
-}
-
-int monitor(t_philo *philo)
-{
-    long long current_time;
-    pthread_mutex_lock(philo->meal_lock);
-    current_time = get_time();
-
-    if ((current_time - philo->last_meal) > philo->time_to_die)
-    {
-        pthread_mutex_lock(philo->write_lock);
-        printf("%lld %d died\n", (current_time - philo->start_time), philo->id);
-        pthread_mutex_unlock(philo->write_lock);
-        *(philo->dead) = 1;
-        pthread_mutex_unlock(philo->meal_lock);
-        return(1);
-    }
-
-    pthread_mutex_unlock(philo->meal_lock);
-    return 0;
-}
-
-void *monitor_routine(void *arg)
-{
-    t_program *program = (t_program *)arg;
-    int i;
-    int j;
-
-    while (!program->dead_flag)
-    {
-        i = 0;
-        while (i < program->philos->num_of_philos)
-        {
-            if (monitor(&program->philos[i]))
-            {
-                program->dead_flag = 1;
-                break;
-            }
-            i++;
-        }
-        if (program->dead_flag)
-        {
-            j = 0;
-            while(j < program->philos->num_of_philos)
-            {
-                pthread_detach(program->philos[j].thread);
-                j++;
-            }
-            break;
-        }
-    }
-    return NULL;
+	t_philo *philo = (t_philo *)arg;
+	if (philo->id % 2 != 0)
+		smart_sleep(1);
+	while (philo->dead[0] == 0)
+	{
+		eat(philo);
+		if (!philo->full)
+			break ;
+		sleepp(philo);
+		print_status(philo, "is thinking");
+		usleep(500);
+	}
+	return (NULL);
 }
