@@ -13,12 +13,12 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <unistd.h>
-# include <stdio.h>
 # include <pthread.h>
-# include <sys/time.h>
+# include <stdio.h>
 # include <stdlib.h>
-#include  <time.h>
+# include <sys/time.h>
+# include <time.h>
+# include <unistd.h>
 
 typedef struct s_philo
 {
@@ -47,37 +47,36 @@ typedef struct s_program
 	pthread_mutex_t	meal_lock;
 	pthread_mutex_t	write_lock;
 	t_philo			*philos;
-	pthread_t 		monitor_thread;
+	pthread_t		monitor_thread;
 	pthread_mutex_t	*mutex_arr;
 }					t_program;
 
-// Parsing functions : 
-int ft_strlen(char *str);
-int is_valid_str(char *str);
-int ft_atoi(char *str);
+// Parsing functions :
+int					ft_strlen(char *str);
+int					is_valid_str(char *str);
+int					ft_atoi(char *str);
 
 // Fetching functions :
-void input_into_struct(t_program *program, char **av);
-void print_struct(t_program *program);
-void input_error(void);
-int initialize_philos(t_program *program);
-void initialize_mutex(t_program *program);
-long long get_time(void);
+void				input_into_struct(t_program *program, char **av);
+void				print_struct(t_program *program);
+void				input_error(void);
+int					initialize_philos(t_program *program);
+void				initialize_mutex(t_program *program);
+long long			get_time(void);
 
 // Simulation functions :
-int initialize_philos(t_program *program);
-void *philosopher_life(void *arg);
-void *philosophers(t_program *program);
-void eat(t_philo *philo);
-void sleepp(t_philo *philo);
-void print_status(t_philo *philo, char *status);
-void smart_sleep(long long time);
-int monitor(t_philo *philo);
-void *monitor_routine(void *arg);
-int initialize_philos_part2(t_program *program, int i);
+int					initialize_philos(t_program *program);
+void				*philosopher_life(void *arg);
+void				*philosophers(t_program *program);
+void				eat(t_philo *philo);
+void				sleepp(t_philo *philo);
+void				print_status(t_philo *philo, char *status);
+void				smart_sleep(long long time);
+int					monitor(t_philo *philo);
+void				*monitor_routine(void *arg);
+int					initialize_philos_part2(t_program *program, int i);
 
 // cleanup
-void cleanup_resources(t_program *program);
-
+void				cleanup_resources(t_program *program);
 
 #endif

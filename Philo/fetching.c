@@ -17,6 +17,7 @@ void	input_error(void)
 	printf("Error : Wrong number of arguments\n");
 	exit(1);
 }
+
 void	input_into_struct(t_program *program, char **av)
 {
 	program->philos = malloc(sizeof(t_philo) * ft_atoi(av[1]));
@@ -40,9 +41,12 @@ long long	get_time(void)
 	gettimeofday(&time, NULL);
 	return ((long long)time.tv_sec * 1000 + time.tv_usec / 1000);
 }
+
 void	cleanup_resources(t_program *program)
 {
-	int i = 0;
+	int	i;
+
+	i = 0;
 	while (i < program->philos->num_of_philos)
 	{
 		pthread_mutex_destroy(&program->mutex_arr[i]);

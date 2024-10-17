@@ -43,6 +43,8 @@ int	initialize_philos(t_program *program)
 
 int	initialize_philos_part2(t_program *program, int i)
 {
+	program->philos[i].num_times_to_eat = program->philos->num_times_to_eat;
+	program->philos[i].meal_lock = &program->meal_lock;
 	if (program->philos[i].id % 2 != 0)
 	{
 		program->philos[i].r_fork = &program->mutex_arr[i];
@@ -55,8 +57,6 @@ int	initialize_philos_part2(t_program *program, int i)
 			% program->philos->num_of_philos];
 		program->philos[i].l_fork = &program->mutex_arr[i];
 	}
-	program->philos[i].num_times_to_eat = program->philos->num_times_to_eat;
-	program->philos[i].meal_lock = &program->meal_lock;
 	return (1);
 }
 
@@ -103,13 +103,15 @@ void	*philosophers(t_program *program)
 
 void	*philosopher_life(void *arg)
 {
-	t_philo *philo = (t_philo *)arg;
+	t_philo	*philo;
+
+	philo = (t_philo *) arg;
 	if (philo->id % 2 != 0)
 		smart_sleep(1);
 	while (philo->dead[0] == 0)
 	{
 		eat(philo);
-		if (!philo->full)
+		if (philo->full)
 			break ;
 		sleepp(philo);
 		print_status(philo, "is thinking");

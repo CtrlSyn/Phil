@@ -40,20 +40,22 @@ int	kolchi_kla(t_program *program)
 		return (0);
 	while (i >= 0)
 	{
-		if ((program->philos[i].meals_eaten < (program->philos[i].num_times_to_eat)))
+		if ((program->philos[i].meals_eaten
+				< (program->philos[i].num_times_to_eat)))
 			return (0);
 		i--;
 	}
-	program->philos->dead[0] = 1;
 	program->all_eat = 1;
+	program->philos->dead[0] = 1;
 	return (1);
 }
 
 void	*monitor_routine(void *arg)
 {
-	t_program *program = (t_program *)arg;
-	int i;
+	t_program	*program;
+	int			i;
 
+	program = (t_program *) arg;
 	while (!program->dead_flag)
 	{
 		i = 0;
@@ -65,6 +67,5 @@ void	*monitor_routine(void *arg)
 		}
 		kolchi_kla(program);
 	}
-
 	return (NULL);
 }

@@ -28,6 +28,7 @@ void	eat(t_philo *philo)
 	pthread_mutex_lock(philo->meal_lock);
 	philo->last_meal = get_time();
 	philo->meals_eaten = philo->meals_eaten + 1;
+	// printf("Philosopher %d has eaten %d times\n", philo->id, philo->meals_eaten);
 	pthread_mutex_unlock(philo->meal_lock);
 	pthread_mutex_unlock(philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);

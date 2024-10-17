@@ -50,8 +50,8 @@ int	is_valid_str(char *str)
 
 int	ft_atoi(char *str)
 {
-	int i;
-	int res;
+	int	i;
+	int	res;
 
 	i = 0;
 	res = 0;
