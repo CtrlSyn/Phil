@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   simulation_p2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: peaky <peaky@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:45:51 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/16 19:45:53 by ansoulai         ###   ########.fr       */
+/*   Updated: 2024/10/18 01:53:51 by peaky            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ void	eat(t_philo *philo)
 	pthread_mutex_lock(philo->meal_lock);
 	philo->last_meal = get_time();
 	philo->meals_eaten = philo->meals_eaten + 1;
-	// printf("Philosopher %d has eaten %d times\n", philo->id, philo->meals_eaten);
 	pthread_mutex_unlock(philo->meal_lock);
 	pthread_mutex_unlock(philo->l_fork);
 	pthread_mutex_unlock(philo->r_fork);

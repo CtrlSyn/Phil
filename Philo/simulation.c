@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: peaky <peaky@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:46:01 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/16 19:46:06 by ansoulai         ###   ########.fr       */
+/*   Updated: 2024/10/18 00:03:58 by peaky            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ int	initialize_philos(t_program *program)
 		program->philos[i].dead = &program->dead_flag;
 		program->philos[i].write_lock = &program->write_lock;
 		program->philos[i].full = program->all_eat;
+		
 		if (initialize_philos_part2(program, i) == 0)
 			return (0);
 		i++;
@@ -111,7 +112,7 @@ void	*philosopher_life(void *arg)
 	while (philo->dead[0] == 0)
 	{
 		eat(philo);
-		if (philo->full)
+		if (!philo->full)
 			break ;
 		sleepp(philo);
 		print_status(philo, "is thinking");
