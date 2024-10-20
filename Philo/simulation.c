@@ -6,7 +6,7 @@
 /*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:46:01 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/20 22:30:07 by ansoulai         ###   ########.fr       */
+/*   Updated: 2024/10/20 23:40:00 by ansoulai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,7 @@ int	initialize_philos(t_program *program)
 
 	i = 0;
 	if (!program || !program->philos || program->philos->num_of_philos <= 0)
-	{
-		printf("Invalid program structure\n");
 		return (0);
-	}
 	while (i < program->philos->num_of_philos)
 	{
 		program->philos[i].id = i + 1;
@@ -103,30 +100,28 @@ void	*philosophers(t_program *program)
 	return (NULL);
 }
 
-void *philosopher_life(void *arg)
+void	*philosopher_life(void *arg)
 {
-    t_philo *philo = (t_philo *)arg;
-    int should_continue = 1;
+	t_philo	*philo;
+	int		should_continue;
 
-    if (philo->id % 2 != 0)
-        smart_sleep(1);
-
-    while (should_continue)
-    {
-        pthread_mutex_lock(philo->dead_flag_mutex);
-        should_continue = (philo->dead[0] == 0);
-        pthread_mutex_unlock(philo->dead_flag_mutex);
-
-        if (!should_continue)
-            break;
-
-        eat(philo);
-        if (!philo->full)
-            break;
-
-        sleepp(philo);
-        print_status(philo, "is thinking");
-        usleep(500);
-    }
-    return NULL;
+	philo = (t_philo *)arg;
+	should_continue = 1;
+	if (philo->id % 2 != 0)
+		smart_sleep(1);
+	while (should_continue)
+	{
+		pthread_mutex_lock(philo->dead_flag_mutex);
+		should_continue = (philo->dead[0] == 0);
+		pthread_mutex_unlock(philo->dead_flag_mutex);
+		if (!should_continue)
+			break ;
+		eat(philo);
+		if (!philo->full)
+			break ;
+		sleepp(philo);
+		print_status(philo, "is thinking");
+		usleep(500);
+	}
+	return (NULL);
 }

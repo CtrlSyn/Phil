@@ -38,7 +38,7 @@ typedef struct s_philo
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*write_lock;
 	pthread_mutex_t	*meal_lock;
-	pthread_mutex_t *dead_flag_mutex;
+	pthread_mutex_t	*dead_flag_mutex;
 }					t_philo;
 
 typedef struct s_program
@@ -50,7 +50,7 @@ typedef struct s_program
 	t_philo			*philos;
 	pthread_t		monitor_thread;
 	pthread_mutex_t	*mutex_arr;
-	pthread_mutex_t dead_flag_mutex;
+	pthread_mutex_t	dead_flag_mutex;
 }					t_program;
 
 // Parsing functions :
@@ -73,7 +73,7 @@ void				*philosophers(t_program *program);
 void				eat(t_philo *philo);
 void				sleepp(t_philo *philo);
 void				print_status(t_philo *philo, char *status);
-void    			smart_sleep(long long time);
+void				smart_sleep(long long time);
 int					monitor(t_philo *philo);
 void				*monitor_routine(void *arg);
 int					initialize_philos_part2(t_program *program, int i);

@@ -6,7 +6,7 @@
 /*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:45:51 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/20 22:30:48 by ansoulai         ###   ########.fr       */
+/*   Updated: 2024/10/20 23:40:11 by ansoulai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,19 +45,20 @@ void	sleepp(t_philo *philo)
 	smart_sleep(philo->time_to_sleep);
 }
 
-void print_status(t_philo *philo, char *status)
+void	print_status(t_philo *philo, char *status)
 {
-    pthread_mutex_lock(philo->dead_flag_mutex);
-    if (*(philo->dead) == 0)
-    {
-        pthread_mutex_lock(philo->write_lock);
-        printf("%lld %d %s\n", get_time() - philo->start_time, philo->id, status);
-        pthread_mutex_unlock(philo->write_lock);
-    }
-    pthread_mutex_unlock(philo->dead_flag_mutex);
+	pthread_mutex_lock(philo->dead_flag_mutex);
+	if (*(philo->dead) == 0)
+	{
+		pthread_mutex_lock(philo->write_lock);
+		printf("%lld %d %s\n", get_time() - philo->start_time, philo->id,
+			status);
+		pthread_mutex_unlock(philo->write_lock);
+	}
+	pthread_mutex_unlock(philo->dead_flag_mutex);
 }
 
-void    smart_sleep(long long time)
+void	smart_sleep(long long time)
 {
 	long long	start;
 
