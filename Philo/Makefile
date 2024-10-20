@@ -4,7 +4,7 @@ SRC_NAME = parsing.c main.c fetching.c simulation.c simulation_p2.c observation.
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror #-fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -fsanitize=thread
 
 OBJ_NAME = $(SRC_NAME:.c=.o)
 

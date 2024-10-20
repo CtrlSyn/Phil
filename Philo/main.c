@@ -6,7 +6,7 @@
 /*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:45:25 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/16 19:45:28 by ansoulai         ###   ########.fr       */
+/*   Updated: 2024/10/19 02:39:38 by ansoulai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	main(int ac, char **av)
 	}
 	while (av[i])
 	{
-		if (!is_valid_str(av[i]) || ft_atoi(av[i]) <= 0 || ft_atoi(av[1]) > 200)
+		if (!is_valid_str(av[i]) || ft_atoi(av[i]) <= 0 || ft_atoi(av[1]) >= 200)
 		{
 			printf("Error : argument\n");
 			return (0);

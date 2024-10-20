@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: peaky <peaky@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:46:01 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/18 00:03:58 by peaky            ###   ########.fr       */
+/*   Updated: 2024/10/20 22:30:07 by ansoulai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	initialize_philos(t_program *program)
 		program->philos[i].dead = &program->dead_flag;
 		program->philos[i].write_lock = &program->write_lock;
 		program->philos[i].full = program->all_eat;
-		
+		program->philos[i].dead_flag_mutex = &program->dead_flag_mutex;
 		if (initialize_philos_part2(program, i) == 0)
 			return (0);
 		i++;
@@ -67,6 +67,7 @@ void	initialize_mutex(t_program *program)
 
 	pthread_mutex_init(&program->meal_lock, NULL);
 	pthread_mutex_init(&program->write_lock, NULL);
+	pthread_mutex_init(&program->dead_flag_mutex, NULL);
 	i = 0;
 	while (i < program->philos->num_of_philos)
 	{
@@ -102,21 +103,30 @@ void	*philosophers(t_program *program)
 	return (NULL);
 }
 
-void	*philosopher_life(void *arg)
+void *philosopher_life(void *arg)
 {
-	t_philo	*philo;
+    t_philo *philo = (t_philo *)arg;
+    int should_continue = 1;
 
-	philo = (t_philo *) arg;
-	if (philo->id % 2 != 0)
-		smart_sleep(1);
-	while (philo->dead[0] == 0)
-	{
-		eat(philo);
-		if (!philo->full)
-			break ;
-		sleepp(philo);
-		print_status(philo, "is thinking");
-		usleep(500);
-	}
-	return (NULL);
+    if (philo->id % 2 != 0)
+        smart_sleep(1);
+
+    while (should_continue)
+    {
+        pthread_mutex_lock(philo->dead_flag_mutex);
+        should_continue = (philo->dead[0] == 0);
+        pthread_mutex_unlock(philo->dead_flag_mutex);
+
+        if (!should_continue)
+            break;
+
+        eat(philo);
+        if (!philo->full)
+            break;
+
+        sleepp(philo);
+        print_status(philo, "is thinking");
+        usleep(500);
+    }
+    return NULL;
 }

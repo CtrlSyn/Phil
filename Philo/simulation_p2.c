@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   simulation_p2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: peaky <peaky@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ansoulai <ansoulai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/16 19:45:51 by ansoulai          #+#    #+#             */
-/*   Updated: 2024/10/18 01:53:51 by peaky            ###   ########.fr       */
+/*   Updated: 2024/10/20 22:30:48 by ansoulai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,12 @@ void	eat(t_philo *philo)
 	if (pthread_mutex_lock(philo->r_fork) != 0)
 		return ;
 	print_status(philo, "has taken a fork");
+	if (philo->num_of_philos == 1)
+	{
+		smart_sleep(philo->time_to_die);
+		pthread_mutex_unlock(philo->r_fork);
+		return ;
+	}
 	if (pthread_mutex_lock(philo->l_fork) != 0)
 	{
 		pthread_mutex_unlock(philo->r_fork);
@@ -39,18 +45,19 @@ void	sleepp(t_philo *philo)
 	smart_sleep(philo->time_to_sleep);
 }
 
-void	print_status(t_philo *philo, char *status)
+void print_status(t_philo *philo, char *status)
 {
-	long long	current_time;
-
-	pthread_mutex_lock(philo->write_lock);
-	current_time = get_time() - philo->start_time;
-	if (philo->dead[0] == 0)
-		printf("%lld %d %s\n", current_time, philo->id, status);
-	pthread_mutex_unlock(philo->write_lock);
+    pthread_mutex_lock(philo->dead_flag_mutex);
+    if (*(philo->dead) == 0)
+    {
+        pthread_mutex_lock(philo->write_lock);
+        printf("%lld %d %s\n", get_time() - philo->start_time, philo->id, status);
+        pthread_mutex_unlock(philo->write_lock);
+    }
+    pthread_mutex_unlock(philo->dead_flag_mutex);
 }
 
-void	smart_sleep(long long time)
+void    smart_sleep(long long time)
 {
 	long long	start;
 
